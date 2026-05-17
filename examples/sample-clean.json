@@ -1,0 +1,59 @@
+{
+  "tool": "BootAudit",
+  "version": "1.0.0",
+  "host": "WS-DEV-01",
+  "timestamp": "2026-05-17T09:42:11Z",
+  "overall_severity": "Info",
+  "exit_code": 0,
+  "checks": [
+    {
+      "name": "LastShutdown",
+      "severity": "Info",
+      "message": "Last recorded shutdown: 2026-05-16 23:08:42 UTC",
+      "details": {
+        "last_shutdown_utc": "2026-05-16T23:08:42.0000000Z"
+      }
+    },
+    {
+      "name": "LastBoot",
+      "severity": "Info",
+      "message": "Last boot: 2026-05-16 23:09:14 UTC (uptime: 10h 32m)",
+      "details": {
+        "last_boot_utc": "2026-05-16T23:09:14.0000000Z",
+        "uptime_days": "0.44"
+      }
+    },
+    {
+      "name": "ShutdownReason",
+      "severity": "Info",
+      "message": "Last shutdown was user-initiated (Event 1074, 2026-05-16 23:08).",
+      "details": {
+        "unexpected_count": "0",
+        "kernel_power_count": "0"
+      }
+    },
+    {
+      "name": "UptimeRisk",
+      "severity": "Info",
+      "message": "Uptime 0.4 days (threshold: 30).",
+      "details": {
+        "uptime_days": "0.44",
+        "threshold_days": "30"
+      }
+    },
+    {
+      "name": "PendingReboot",
+      "severity": "Info",
+      "message": "No pending reboot detected."
+    },
+    {
+      "name": "BootIntegrity",
+      "severity": "Info",
+      "message": "Secure Boot: ON   BitLocker: ON",
+      "details": {
+        "secure_boot": "ON",
+        "bitlocker": "ON"
+      }
+    }
+  ]
+}

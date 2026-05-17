@@ -1,0 +1,63 @@
+{
+  "tool": "BootAudit",
+  "version": "1.0.0",
+  "host": "SRV-LEGACY-07",
+  "timestamp": "2026-05-17T09:42:11Z",
+  "overall_severity": "Critical",
+  "exit_code": 3,
+  "checks": [
+    {
+      "name": "LastShutdown",
+      "severity": "Info",
+      "message": "Last recorded shutdown: 2025-10-14 03:11:08 UTC",
+      "details": {
+        "last_shutdown_utc": "2025-10-14T03:11:08.0000000Z"
+      }
+    },
+    {
+      "name": "LastBoot",
+      "severity": "Info",
+      "message": "Last boot: 2025-10-14 03:14:22 UTC (uptime: 215d 6h)",
+      "details": {
+        "last_boot_utc": "2025-10-14T03:14:22.0000000Z",
+        "uptime_days": "215.27"
+      }
+    },
+    {
+      "name": "ShutdownReason",
+      "severity": "Critical",
+      "message": "Last shutdown was unexpected shutdown (Event 6008, 2025-10-14 03:11). Found 4 unexpected and 3 kernel-power events in last 500 entries.",
+      "details": {
+        "unexpected_count": "4",
+        "kernel_power_count": "3"
+      }
+    },
+    {
+      "name": "UptimeRisk",
+      "severity": "Critical",
+      "message": "Uptime 215.3 days exceeds threshold of 30 days. Long-running hosts often miss kernel patches.",
+      "details": {
+        "uptime_days": "215.27",
+        "threshold_days": "30"
+      }
+    },
+    {
+      "name": "PendingReboot",
+      "severity": "Warning",
+      "message": "Reboot pending: Component Based Servicing, Windows Update.",
+      "details": {
+        "cbs_pending": "True",
+        "wu_pending": "True"
+      }
+    },
+    {
+      "name": "BootIntegrity",
+      "severity": "Warning",
+      "message": "Secure Boot: OFF   BitLocker: OFF   Issues: Secure Boot disabled, BitLocker not protecting any volume",
+      "details": {
+        "secure_boot": "OFF",
+        "bitlocker": "OFF"
+      }
+    }
+  ]
+}
