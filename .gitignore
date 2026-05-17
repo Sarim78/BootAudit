@@ -1,0 +1,40 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local config and secrets
+appsettings.Local.json
+*.env
+
+# BootAudit runtime output (never commit captured host data)
+*.log
+audit-*.json
+reports/
