@@ -9,7 +9,7 @@
 
 This project audits a Windows host's boot and shutdown activity in a transparent, read-only way. The goal is not to build production security software, it is to understand the mechanics behind the artifacts that incident responders, SOC analysts, and patch-compliance teams rely on every day, so you can recognize them in the wild.
 
-Understanding how boot forensics works is a fundamental skill for:
+Understanding boot forensics is a fundamental skill for:
 
 - SOC Analysts triaging endpoint alerts and reconstructing timelines
 - Incident Responders investigating unexpected reboots or crashes
@@ -18,39 +18,13 @@ Understanding how boot forensics works is a fundamental skill for:
 
 ---
 
-## Project Structure
-
-```
-BootAudit/
-│
-├── .github/workflows/ci.yml        Build and test on push (GitHub Actions)
-├── src/
-│   ├── BootAudit.csproj            .NET 8 project file
-│   ├── Program.cs                  Entry point, CLI parsing, orchestration
-│   ├── Checks.cs                   All six audit checks
-│   ├── Reporting.cs                Console and JSON reporters
-│   └── Models.cs                   CheckResult, Report, Severity
-├── tests/
-│   ├── BootAudit.Tests.csproj      xUnit test project
-│   └── Tests.cs                    Unit tests
-├── examples/
-│   ├── sample-clean.json           Example output, healthy host
-│   └── sample-critical.json        Example output, host needing attention
-├── THREAT_MODEL.md                 Defensive rationale for each check
-├── LICENSE                         MIT
-└── README.md                       You are reading it
-```
-
-> **Note:** `log.txt`, build artifacts, and any captured host reports should never be committed to a public repository. The `.gitignore` excludes `bin/`, `obj/`, and `*.user` files by default.
-
----
-
 ## Getting Started
 
 ### Prerequisites
 
-- Windows 10 or 11 (or Windows Server 2019+)
+- Windows 10, Windows 11, or Windows Server 2019+
 - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- PowerShell (preinstalled on Windows)
 
 ### Installation
 
@@ -59,26 +33,23 @@ BootAudit/
 git clone https://github.com/Sarim78/BootAudit.git
 cd BootAudit
 
-# 2. Restore dependencies and build
+# 2. Restore dependencies
 dotnet restore
+
+# 3. Build the project
 dotnet build -c Release
 ```
 
 The compiled executable is produced at `src/bin/Release/net8.0/BootAudit.exe`.
 
-### Optional: Build a self-contained single-file executable
-
-```powershell
-dotnet publish src/BootAudit.csproj -c Release -r win-x64 --self-contained `
-    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
-```
-
-This produces a single `.exe` that runs on machines without the .NET runtime installed.
-
 ### Running the Audit
 
 ```powershell
-BootAudit.exe
+# Run all checks against the local machine
+dotnet run --project src/BootAudit.csproj
+
+# Or run the compiled binary directly
+.\src\bin\Release\net8.0\BootAudit.exe
 ```
 
 The tool will:
@@ -87,11 +58,26 @@ The tool will:
 2. Print a severity-scored report to the console
 3. Exit with a code matching the highest severity observed
 
-To get machine-readable output instead:
+### Producing Machine-Readable Output
 
 ```powershell
-BootAudit.exe --json > audit.json
+.\src\bin\Release\net8.0\BootAudit.exe --json > audit.json
 ```
+
+### Running the Tests
+
+```powershell
+dotnet test
+```
+
+### Optional: Build a Portable Executable
+
+```powershell
+dotnet publish src/BootAudit.csproj -c Release -r win-x64 --self-contained `
+    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+```
+
+This produces a single `.exe` that runs on machines without the .NET runtime installed.
 
 ---
 
@@ -122,21 +108,11 @@ Each check returns one of four severities: **Info**, **Advisory**, **Warning**, 
 
 ### Examples
 
-Run the full audit:
-
 ```powershell
-BootAudit.exe
-```
-
-Run only the pending-reboot check:
-
-```powershell
+# Run only the pending-reboot check
 BootAudit.exe --check PendingReboot --json
-```
 
-Enforce a stricter 14-day uptime policy:
-
-```powershell
+# Enforce a stricter 14-day uptime policy
 BootAudit.exe --threshold-days 14
 ```
 
@@ -157,17 +133,15 @@ BootAudit follows the Nagios plugin convention so it integrates cleanly with exi
 
 ## Sample Output
 
-**Console:**
-
 ```
 BootAudit  v1.0.0   host: WS-FINANCE-04   2026-05-17T14:22:08Z
 
-[ OK ] Last Shutdown       2026-05-15 22:14:03 UTC
-[ OK ] Last Boot           2026-05-15 22:14:51 UTC  (uptime: 1d 16h)
-[ OK ] Shutdown Reason     Last shutdown was user-initiated (Event 1074)
-[ OK ] Uptime Risk         1.7 days (threshold: 30)
-[ WARN ] Pending Reboot      Windows Update reboot required
-[ OK ] Boot Integrity      Secure Boot: ON   BitLocker: ON
+[ OK   ] Last Shutdown      2026-05-15 22:14:03 UTC
+[ OK   ] Last Boot          2026-05-15 22:14:51 UTC  (uptime: 1d 16h)
+[ OK   ] Shutdown Reason    Last shutdown was user-initiated (Event 1074)
+[ OK   ] Uptime Risk        1.7 days (threshold: 30)
+[ WARN ] Pending Reboot     Windows Update reboot required
+[ OK   ] Boot Integrity     Secure Boot: ON   BitLocker: ON
 
 Overall: WARNING  (exit 2)
 ```
@@ -183,18 +157,6 @@ After building this, you will understand why defenders recommend:
 - **Uptime monitoring thresholds** because hosts up for 200+ days are almost always missing critical updates
 - **Secure Boot and BitLocker as baseline controls** to defend against bootkit-class threats
 - **Endpoint Detection and Response (EDR)** to correlate boot anomalies with broader attacker behavior
-- **Configuration baselines (CIS, STIG)** so disabled security features are caught automatically
-
----
-
-## Built With
-
-- [.NET 8](https://dotnet.microsoft.com/) for the runtime
-- [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) as the implementation language
-- [xUnit](https://xunit.net/) for the test suite
-- [System.Management](https://learn.microsoft.com/en-us/dotnet/api/system.management) for WMI access
-- [Microsoft.Win32](https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32) for registry access
-- [System.Diagnostics.EventLog](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventlog) for Windows event log parsing
 
 ---
 
@@ -202,8 +164,7 @@ After building this, you will understand why defenders recommend:
 
 - Windows only (`net8.0-windows` target)
 - The Pending Reboot check may require Administrator rights on hardened systems
-- The Shutdown Reason check parses up to the last 100 power-related events
-- This is a personal learning project and has not been audited or hardened for production use
+- This is a personal learning project and has not been audited for production use
 
 ---
 
